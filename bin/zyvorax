@@ -1,27 +1,40 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -u
-ROOT="${PREFIX:-/data/data/com.termux/files/usr}/share/zyvorax"
+PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
+ROOT="$PREFIX/share/zyvorax"
 RUNNER="$ROOT/core/runner.sh"
 CATALOG="$ROOT/core/catalog.sh"
 
-if [[ "${1:-}" == "catalog" ]]; then exec bash "$CATALOG" "${@:2}"; fi
-if [[ $# -gt 0 ]]; then exec bash "$RUNNER" "$@"; fi
+run(){ exec bash "$RUNNER" "$@"; }
 
-clear
-printf '\033[1;36m\n╔══════════════════════════════════════════════╗\n║              ZYVORAX ULTRA                 ║\n║          ALL-IN-ONE DAILY TOOLKIT           ║\n╚══════════════════════════════════════════════╝\033[0m\n\n'
-printf 'Catalog: '; bash "$CATALOG" count
-printf '\n[1] System      [2] Network      [3] Files\n[4] Developer   [5] Android      [6] Text/Data\n[7] Web         [8] Productivity [9] Search\n[10] Daily Use  [0] Exit\n\nSelect: '; read -r choice
-case "$choice" in
-  1) bash "$RUNNER" system-info;;
-  2) bash "$RUNNER" network-info;;
-  3) bash "$RUNNER" file-find;;
-  4) bash "$RUNNER" code-stats;;
-  5) bash "$RUNNER" termux-info;;
-  6) bash "$RUNNER" stats "${1:-}" 2>/dev/null || bash "$RUNNER" health-check;;
-  7) bash "$RUNNER" web-status "https://example.com";;
-  8) printf '1) notes  2) todos  3) timer\nSelect: '; read -r d; case "$d" in 1) bash "$RUNNER" notes;; 2) bash "$RUNNER" todos;; 3) bash "$RUNNER" timer 10;; esac;;
-  9) printf 'Search: '; read -r q; bash "$CATALOG" search "$q" | head -50;;
-  10) printf '1) calculator  2) password  3) uuid  4) random  5) date-time\nSelect: '; read -r d; case "$d" in 1) printf 'Expression: '; read -r x; bash "$RUNNER" calc "$x";; 2) bash "$RUNNER" password;; 3) bash "$RUNNER" uuid;; 4) bash "$RUNNER" random;; 5) bash "$RUNNER" date-time;; esac;;
-  0) exit 0;;
-  *) echo 'Invalid selection.';;
-esac
+if [[ "${1:-}" == "catalog" ]]; then exec bash "$CATALOG" "${@:2}"; fi
+if [[ $# -gt 0 ]]; then run "$@"; fi
+
+while true; do
+  clear
+  printf '\033[1;36m\n╔══════════════════════════════════════════════════╗\n║                 ZYVORAX ULTRA                  ║\n║              DAILY TOOLKIT • TERMUX            ║\n╚══════════════════════════════════════════════════╝\033[0m\n\n'
+  printf 'Catalog: '; bash "$CATALOG" count
+  printf '\n'
+  printf '[1] System       [2] Network       [3] Files\n'
+  printf '[4] Developer    [5] Android       [6] Text/Data\n'
+  printf '[7] Web          [8] Daily Life    [9] Search\n'
+  printf '[10] Productivity [11] Quick Tools  [12] Catalog\n'
+  printf '[0] Exit\n\nSelect: '
+  read -r choice
+  case "$choice" in
+    1) run system-info; read -r -p 'Enter to continue...' _ ;;
+    2) printf '\n1) Network info\n2) DNS\n3) Routes\n4) Public IP\n5) Ping\nSelect: '; read -r x; case "$x" in 1) run network-info;;2) run dns-info;;3) run routes;;4) run public-ip;;5) run ping;;esac; read -r -p 'Enter to continue...' _ ;;
+    3) printf '\n1) Find files\n2) Large files\n3) File count\n4) Checksum\n5) Archive list\nSelect: '; read -r x; case "$x" in 1) run file-find;;2) run large-files;;3) run file-count;;4) read -r -p 'File: ' f; run checksum "$f";;5) read -r -p 'Archive: ' f; run archive-list "$f";;esac; read -r -p 'Enter to continue...' _ ;;
+    4) printf '\n1) Bash check\n2) Python check\n3) Node check\n4) JSON check\n5) Code stats\nSelect: '; read -r x; case "$x" in 1) read -r -p 'Script: ' f; run bash-check "$f";;2) read -r -p 'Python file: ' f; run python-check "$f";;3) read -r -p 'JS file: ' f; run node-check "$f";;4) read -r -p 'JSON file: ' f; run json-check "$f";;5) run code-stats;;esac; read -r -p 'Enter to continue...' _ ;;
+    5) printf '\n1) Termux info\n2) Android version\n3) Device model\n4) Battery\n5) Clipboard get\nSelect: '; read -r x; case "$x" in 1) run termux-info;;2) run android-version;;3) run device-model;;4) run battery-status;;5) run clipboard-get;;esac; read -r -p 'Enter to continue...' _ ;;
+    6) printf '\n1) Uppercase\n2) Lowercase\n3) Reverse text\n4) Word count\n5) Line count\nSelect: '; read -r x; case "$x" in 1) read -r -p 'File: ' f; run upper "$f";;2) read -r -p 'File: ' f; run lower "$f";;3) read -r -p 'Text: ' t; run reverse "$t";;4) read -r -p 'File: ' f; run word-count "$f";;5) read -r -p 'File: ' f; run line-count "$f";;esac; read -r -p 'Enter to continue...' _ ;;
+    7) printf '\n1) URL status\n2) Headers\n3) Domain IP\n4) URL encode\n5) URL decode\nSelect: '; read -r x; case "$x" in 1) read -r -p 'URL: ' u; run web-status "$u";;2) read -r -p 'URL: ' u; run web-headers "$u";;3) read -r -p 'Domain: ' d; run domain-ip "$d";;4) read -r -p 'Text: ' t; run url-encode "$t";;5) read -r -p 'Text: ' t; run url-decode "$t";;esac; read -r -p 'Enter to continue...' _ ;;
+    8) printf '\n1) Note add\n2) Notes list\n3) Todo add\n4) Todo list\n5) Todo done\nSelect: '; read -r x; case "$x" in 1) read -r -p 'Note: ' t; run note "$t";;2) run notes;;3) read -r -p 'Todo: ' t; run todo "$t";;4) run todos;;5) read -r -p 'Todo number: ' n; run todo-done "$n";;esac; read -r -p 'Enter to continue...' _ ;;
+    9) read -r -p 'Search catalog: ' q; bash "$CATALOG" search "$q" | head -80; read -r -p 'Enter to continue...' _ ;;
+    10) printf '\n1) Calculator\n2) Timer\n3) Date/time\n4) Random\n5) Password generator\n6) UUID\nSelect: '; read -r x; case "$x" in 1) read -r -p 'Expression: ' e; run calc "$e";;2) read -r -p 'Seconds: ' s; run timer "$s";;3) run date-time;;4) run random;;5) run password;;6) run uuid;;esac; read -r -p 'Enter to continue...' _ ;;
+    11) printf '\n1) Clipboard set\n2) Notification\n3) Toast\n4) TTS\n5) Torch\n6) Health check\nSelect: '; read -r x; case "$x" in 1) read -r -p 'Text: ' t; run clipboard-set "$t";;2) read -r -p 'Message: ' t; run notification "$t";;3) read -r -p 'Message: ' t; run toast "$t";;4) read -r -p 'Text: ' t; run tts "$t";;5) read -r -p 'on/off: ' t; run torch "$t";;6) run health-check;;esac; read -r -p 'Enter to continue...' _ ;;
+    12) printf '\n1) Count\n2) Categories\n3) Operations\n4) Search\nSelect: '; read -r x; case "$x" in 1) bash "$CATALOG" count;;2) bash "$CATALOG" categories;;3) bash "$CATALOG" operations;;4) read -r -p 'Term: ' q; bash "$CATALOG" search "$q" | head -100;;esac; read -r -p 'Enter to continue...' _ ;;
+    0) exit 0;;
+    *) echo 'Invalid selection.'; sleep 1;;
+  esac
+done
