@@ -1,14 +1,27 @@
 #!/data/data/com.termux/files/usr/bin/bash
+set -u
 ROOT="${PREFIX:-/data/data/com.termux/files/usr}/share/zyvorax"
+RUNNER="$ROOT/core/runner.sh"
+CATALOG="$ROOT/core/catalog.sh"
 
-if [[ "${1:-}" == "catalog" ]]; then
-  exec bash "$ROOT/core/catalog.sh" "${@:2}"
-fi
+if [[ "${1:-}" == "catalog" ]]; then exec bash "$CATALOG" "${@:2}"; fi
+if [[ $# -gt 0 ]]; then exec bash "$RUNNER" "$@"; fi
 
 clear
-printf '\n\033[1;36m╔══════════════════════════════════════════════╗\n║              ZYVORAX ULTRA                 ║\n║             5000+ TOOL EDITION             ║\n╚══════════════════════════════════════════════╝\033[0m\n\n'
-mapfile -t cats < <(find "$ROOT/categories" -type f -name '*.sh' 2>/dev/null | sort)
-for i in "${!cats[@]}"; do printf '%2d) %s\n' "$((i+1))" "$(basename "${cats[$i]}" .sh | tr '_' ' ' | tr '[:lower:]' '[:upper:]')"; done
-printf ' 0) EXIT\n\nSelect category: '; read -r n
-[[ "$n" == 0 ]] && exit 0
-[[ "$n" =~ ^[0-9]+$ ]] && ((n>=1 && n<=${#cats[@]})) && exec "${cats[$((n-1))]}" || echo 'Invalid selection'
+printf '\033[1;36m\n╔══════════════════════════════════════════════╗\n║              ZYVORAX ULTRA                 ║\n║          ALL-IN-ONE DAILY TOOLKIT           ║\n╚══════════════════════════════════════════════╝\033[0m\n\n'
+printf 'Catalog: '; bash "$CATALOG" count
+printf '\n[1] System      [2] Network      [3] Files\n[4] Developer   [5] Android      [6] Text/Data\n[7] Web         [8] Productivity [9] Search\n[10] Daily Use  [0] Exit\n\nSelect: '; read -r choice
+case "$choice" in
+  1) bash "$RUNNER" system-info;;
+  2) bash "$RUNNER" network-info;;
+  3) bash "$RUNNER" file-find;;
+  4) bash "$RUNNER" code-stats;;
+  5) bash "$RUNNER" termux-info;;
+  6) bash "$RUNNER" stats "${1:-}" 2>/dev/null || bash "$RUNNER" health-check;;
+  7) bash "$RUNNER" web-status "https://example.com";;
+  8) printf '1) notes  2) todos  3) timer\nSelect: '; read -r d; case "$d" in 1) bash "$RUNNER" notes;; 2) bash "$RUNNER" todos;; 3) bash "$RUNNER" timer 10;; esac;;
+  9) printf 'Search: '; read -r q; bash "$CATALOG" search "$q" | head -50;;
+  10) printf '1) calculator  2) password  3) uuid  4) random  5) date-time\nSelect: '; read -r d; case "$d" in 1) printf 'Expression: '; read -r x; bash "$RUNNER" calc "$x";; 2) bash "$RUNNER" password;; 3) bash "$RUNNER" uuid;; 4) bash "$RUNNER" random;; 5) bash "$RUNNER" date-time;; esac;;
+  0) exit 0;;
+  *) echo 'Invalid selection.';;
+esac
