@@ -1,0 +1,9 @@
+#!/data/data/com.termux/files/usr/bin/bash
+ROOT="${PREFIX:-/data/data/com.termux/files/usr}/share/zyvorax"
+clear
+printf '\n\033[1;36m╔══════════════════════════════════════════════╗\n║              ZYVORAX ULTRA                 ║\n║             200 TOOL EDITION               ║\n╚══════════════════════════════════════════════╝\033[0m\n\n'
+mapfile -t cats < <(find "$ROOT/categories" -type f -name '*.sh' 2>/dev/null | sort)
+for i in "${!cats[@]}"; do printf '%2d) %s\n' "$((i+1))" "$(basename "${cats[$i]}" .sh | tr '_' ' ' | tr '[:lower:]' '[:upper:]')"; done
+printf ' 0) EXIT\n\nSelect category: '; read -r n
+[[ "$n" == 0 ]] && exit 0
+[[ "$n" =~ ^[0-9]+$ ]] && ((n>=1 && n<=${#cats[@]})) && exec "${cats[$((n-1))]}" || echo 'Invalid selection'

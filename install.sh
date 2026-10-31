@@ -2,12 +2,12 @@
 set -e
 PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
 ROOT="$PREFIX/share/zyvorax"
-BASE="https://raw.githubusercontent.com/teamzyvorax/zyvorax-team/main"
-mkdir -p "$ROOT"
-printf 'Installing ZYVORAX...\n'
+TMP="${TMPDIR:-/tmp}/zyvorax-install"
 command -v curl >/dev/null 2>&1 || { echo 'curl required: pkg install curl'; exit 1; }
-curl -fsSL "$BASE/bin/zyvorax" -o "$PREFIX/bin/zyvorax"
-chmod 755 "$PREFIX/bin/zyvorax"
-curl -fsSL "$BASE/zyvorax/core/runner.sh" -o "$ROOT/runner.sh"
-chmod 755 "$ROOT/runner.sh"
-printf 'ZYVORAX installed. Run: zyvorax\n'
+rm -rf "$TMP" "$ROOT"; mkdir -p "$TMP" "$PREFIX/share"
+curl -fsSL https://github.com/teamzyvorax/zyvorax-team/archive/refs/heads/main.tar.gz -o "$TMP/z.tar.gz"
+tar -xzf "$TMP/z.tar.gz" -C "$TMP"
+mv "$TMP/zyvorax-team-main/zyvorax" "$ROOT"
+cp "$TMP/zyvorax-team-main/bin/zyvorax" "$PREFIX/bin/zyvorax"
+chmod -R 755 "$ROOT" "$PREFIX/bin/zyvorax"
+echo 'ZYVORAX 200-tool edition installed. Run: zyvorax'
