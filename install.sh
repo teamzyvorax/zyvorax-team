@@ -10,4 +10,7 @@ tar -xzf "$TMP/z.tar.gz" -C "$TMP"
 mv "$TMP/zyvorax-team-main/zyvorax" "$ROOT"
 cp "$TMP/zyvorax-team-main/bin/zyvorax" "$PREFIX/bin/zyvorax"
 chmod -R 755 "$ROOT" "$PREFIX/bin/zyvorax"
-echo 'ZYVORAX 200-tool edition installed. Run: zyvorax'
+echo 'ZYVORAX installed successfully.'
+echo 'Run: zyvorax'
+echo 'Examples: zyvorax system-info | zyvorax network-info | zyvorax notes | zyvorax todo | zyvorax calc "2+2"'
+echo "Catalog entries: $(bash "$ROOT/core/catalog.sh" count)"
