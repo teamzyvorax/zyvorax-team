@@ -4,13 +4,14 @@ PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
 ROOT="$PREFIX/share/zyvorax"
 TMP="${TMPDIR:-/tmp}/zyvorax-install"
 command -v curl >/dev/null 2>&1 || { echo 'curl required: pkg install curl'; exit 1; }
-rm -rf "$TMP" "$ROOT"; mkdir -p "$TMP" "$PREFIX/share"
+command -v tar >/dev/null 2>&1 || { echo 'tar required: pkg install tar'; exit 1; }
+rm -rf "$TMP" "$ROOT"
+mkdir -p "$TMP" "$PREFIX/share"
 curl -fsSL https://github.com/teamzyvorax/zyvorax-team/archive/refs/heads/main.tar.gz -o "$TMP/z.tar.gz"
 tar -xzf "$TMP/z.tar.gz" -C "$TMP"
 mv "$TMP/zyvorax-team-main/zyvorax" "$ROOT"
 cp "$TMP/zyvorax-team-main/bin/zyvorax" "$PREFIX/bin/zyvorax"
 chmod -R 755 "$ROOT" "$PREFIX/bin/zyvorax"
 echo 'ZYVORAX installed successfully.'
-echo 'Run: zyvorax'
-echo 'Examples: zyvorax system-info | zyvorax network-info | zyvorax notes | zyvorax todo | zyvorax calc "2+2"'
-echo "Catalog entries: $(bash "$ROOT/core/catalog.sh" count)"
+printf 'Catalog entries: '; bash "$ROOT/core/catalog.sh" count
+printf 'Run: zyvorax\n'
